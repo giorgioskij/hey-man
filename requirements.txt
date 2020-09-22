@@ -1,0 +1,5 @@
+certifi==2020.6.20
+powerline-status==2.7
+PyAudio==0.2.11
+python-Levenshtein==0.12.0
+SpeechRecognition @ file:///Users/runner/miniforge3/conda-bld/speechrecognition_1597896859564/work
