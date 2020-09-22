@@ -1,5 +1,11 @@
 import signal
 import sys
+import os
+import speech_recognition as sr
+import Levenshtein
+
+
+from math import inf
 from snowboylib import snowboydecoder
 
 
@@ -20,7 +26,7 @@ class Heyman:
 
         self.detector.terminate()
 
-    def handle_signal(self):
+    def handle_signal(self, signal, frame):
         self.interrupted = True
 
     def say(self, s):
@@ -56,7 +62,8 @@ class Heyman:
         if "open" in text or "launch" in text:
             words = text.split()
             i = words.index("open") if "open" in text else words.index("launch")
-            openApp("".join(words[i+1:]))
+            self.openApp("".join(words[i+1:]))
+
 
         elif "nothing" in text:
             self.say("ok sorry")
@@ -66,33 +73,49 @@ class Heyman:
             # os.system("say {0}".format(answer))
             self.say(answer)
 
+    def openApp(self, name):
+        global programs
+
+        if programs == None:
+            collect_computer_programs
+
+        newname = ''.join(' ' + char if char.isupper() else char for char in name).strip() + ".app"
+
+        print("I heard {0}".format(newname))
+
+        best_score = inf
+        candidate = None
+        for program in programs:
+            score = Levenshtein.distance(newname, program)
+            if score < best_score:
+                best_score = score
+                candidate = program
+
+        path = candidate.replace(" ", "\\ ")
+        self.say("launching {0}".format(candidate))
+
+        os.system("open /Applications/"+path)
 
 
-def openApp(name):
-    newname = ''.join(' ' + char if char.isupper() else char for char in name).strip() + ".app"
 
-    print("I heard {0}".format(newname))
 
-    best_score = inf
-    candidate = None
-    for program in programs:
-        score = Levenshtein.distance(newname, program)
-        if score < best_score:
-            best_score = score
-            candidate = program
 
-    path = candidate.replace(" ", "\\ ")
-
-    say("launching {0}".format(candidate))
-
-    os.system("open /Applications/"+path)
-
+def collect_computer_programs():
+    global programs
+    programs = set()
+    with os.scandir("/Applications/") as entries:
+        for entry in entries:
+            programs.add(entry.name)
+        return programs
 
 
 if len(sys.argv) > 1:
     model = sys.argv[1]
 else:
     model = "heyman.pmdl"
+
+programs = set()
+collect_computer_programs()
 
 heyman = Heyman(model)
 heyman.listen()
