@@ -4,7 +4,7 @@ import collections
 import pyaudio
 # from . import snowboydetect
 # import snowboydetect
-from snowboylib.core import snowboydetect
+from heyman.snowboylib.core import snowboydetect
 # import core.snowboydetect
 import time
 import wave

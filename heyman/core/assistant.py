@@ -6,10 +6,10 @@ import Levenshtein
 
 
 from math import inf
-from snowboylib import snowboydecoder
+from ..snowboylib import snowboydecoder
 
 
-class Heyman:
+class Assistant:
 
     def __init__(self, model):
         self.model = model
@@ -74,10 +74,16 @@ class Heyman:
             self.say(answer)
 
     def openApp(self, name):
-        global programs
 
-        if programs == None:
-            collect_computer_programs
+        def collect_computer_programs():
+            programs = set()
+            with os.scandir("/Applications/") as entries:
+                for entry in entries:
+                    programs.add(entry.name)
+                return programs
+
+        if self.programs == None:
+            self.programs = collect_computer_programs
 
         newname = ''.join(' ' + char if char.isupper() else char for char in name).strip() + ".app"
 
@@ -100,22 +106,22 @@ class Heyman:
 
 
 
-def collect_computer_programs():
-    global programs
-    programs = set()
-    with os.scandir("/Applications/") as entries:
-        for entry in entries:
-            programs.add(entry.name)
-        return programs
+# def collect_computer_programs():
+#     global programs
+#     programs = set()
+#     with os.scandir("/Applications/") as entries:
+#         for entry in entries:
+#             programs.add(entry.name)
+#         return programs
 
 
-if len(sys.argv) > 1:
-    model = sys.argv[1]
-else:
-    model = "heyman.pmdl"
+# if len(sys.argv) > 1:
+#     model = sys.argv[1]
+# else:
+#     model = "heyman.pmdl"
 
-programs = set()
-collect_computer_programs()
+# programs = set()
+# collect_computer_programs()
 
-heyman = Heyman(model)
-heyman.listen()
+# heyman = Heyman(model)
+# heyman.listen()
