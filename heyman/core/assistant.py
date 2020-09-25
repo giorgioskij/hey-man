@@ -15,6 +15,7 @@ class Assistant:
         self.model = model
         self.interrupted = False
         self.detector = snowboydecoder.HotwordDetector(self.model, sensitivity = 0.5)
+        self.programs = None
 
         signal.signal(signal.SIGINT, self.handle_signal)
 
@@ -42,6 +43,8 @@ class Assistant:
 
         with mic as source:
             audio = rec.listen(source=source)
+
+        text = ''
 
         try:
             text = rec.recognize_google(audio)
@@ -93,7 +96,7 @@ class Assistant:
                 return programs
 
         if self.programs == None:
-            self.programs = collect_computer_programs
+            self.programs = collect_computer_programs()
 
         newname = ''.join(' ' + char if char.isupper() else char for char in name).strip() + ".app"
 
@@ -101,7 +104,7 @@ class Assistant:
 
         best_score = inf
         candidate = None
-        for program in programs:
+        for program in self.programs:
             score = Levenshtein.distance(newname, program)
             if score < best_score:
                 best_score = score
