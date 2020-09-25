@@ -7,7 +7,7 @@ import Levenshtein
 
 from math import inf
 from ..snowboylib import snowboydecoder
-
+from ..rf import arduino
 
 class Assistant:
 
@@ -30,7 +30,7 @@ class Assistant:
         self.interrupted = True
 
     def say(self, s):
-        os.system("say {0} -v fiona -r 210".format(s.replace("\'", "")))
+        os.system("say {0} -v samantha -r 210".format(s.replace("\'", "")))
 
     def activate(self):
         print("Hi! I am now listening")
@@ -68,6 +68,16 @@ class Assistant:
         elif "nothing" in text:
             self.say("ok sorry")
 
+
+        elif "turn" in text or "switch" in text or "light" in text or "lights" in text:
+
+            if "on" in text:
+                self.handleLight("on")
+            elif "off" in text:
+                self.handleLight("off")
+            else:
+                self.say("do you want to switch the lights on or off?")
+
         else:
             answer = "You said {0}, but you know I am not yet programmed to answer to that".format(text.replace("\'", ""))
             # os.system("say {0}".format(answer))
@@ -102,6 +112,11 @@ class Assistant:
 
         os.system("open /Applications/"+path)
 
+    def handleLight(self, state):
+        if state == "on":
+            arduino.turnOn()
+        else:
+            arduino.turnOff()
 
 
 
