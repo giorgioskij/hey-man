@@ -1,13 +1,23 @@
 import serial
+from heyman.config import arduino as cfg
 
-port = '/dev/cu.usbmodem141201'
+port = cfg["port"]
 
-#ser = serial.Serial(port)
+ser = None
+try:
+    ser = serial.Serial(port)
+except:
+    print("Could not connect to arduino")
+
 
 def turnOn():
-    # ser.write(b'1')
-    print('on')
+    if ser != None:
+        ser.write(b'1')
+        return True
+    return False
 
 def turnOff():
-    #ser.write(b'0')
-    print('off')
+    if ser != None:
+        ser.write(b'0')
+        return True
+    return False

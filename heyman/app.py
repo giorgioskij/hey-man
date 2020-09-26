@@ -1,10 +1,9 @@
 import sys
-import os 
+import os
 
 from heyman.core.assistant import Assistant
 
-print("imported heyman")
-
+from heyman.config import assistant as cfg
 
 def collect_computer_programs():
     global programs
@@ -24,5 +23,5 @@ def collect_computer_programs():
 programs = set()
 collect_computer_programs()
 
-heyman = Assistant("heyman/models/heyman.pmdl")
+heyman = Assistant(cfg["model"])
 heyman.listen()

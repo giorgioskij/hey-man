@@ -8,24 +8,31 @@ import Levenshtein
 from math import inf
 from ..snowboylib import snowboydecoder
 from ..rf import arduino
+from ..config import assistant as cfg
+
+SENSITIVITY = cfg["sensitivity"]
+moder = cfg["model"]
 
 class Assistant:
 
     def __init__(self, model):
         self.model = model
         self.interrupted = False
-        self.detector = snowboydecoder.HotwordDetector(self.model, sensitivity = 0.5)
+        self.detector = snowboydecoder.HotwordDetector(self.model, sensitivity = SENSITIVITY)
         self.programs = None
 
         signal.signal(signal.SIGINT, self.handle_signal)
 
     def listen(self):
         print("Listening... press Ctrl+C to exit")
-        self.detector.start(detected_callback = self.activate,
+        self.detector.start(detected_callback = self.callback,
                             interrupt_check = lambda: self.interrupted,
                             sleep_time = 0.03)
 
         self.detector.terminate()
+
+    def callback(self):
+        self.activate()
 
     def handle_signal(self, signal, frame):
         self.interrupted = True
@@ -116,30 +123,14 @@ class Assistant:
         os.system("open /Applications/"+path)
 
     def handleLight(self, state):
+
+        success = False
+
         if state == "on":
-            arduino.turnOn()
+            success = arduino.turnOn()
+
         else:
-            arduino.turnOff()
+            success = arduino.turnOff()
 
-
-
-
-# def collect_computer_programs():
-#     global programs
-#     programs = set()
-#     with os.scandir("/Applications/") as entries:
-#         for entry in entries:
-#             programs.add(entry.name)
-#         return programs
-
-
-# if len(sys.argv) > 1:
-#     model = sys.argv[1]
-# else:
-#     model = "heyman.pmdl"
-
-# programs = set()
-# collect_computer_programs()
-
-# heyman = Heyman(model)
-# heyman.listen()
+        if not success:
+            self.say("I couldn't connect to arduino")
